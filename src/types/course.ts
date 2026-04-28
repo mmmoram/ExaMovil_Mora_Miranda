@@ -5,5 +5,12 @@ export interface Course {
   credits: number;
   teacher: string;
 }
+
+export interface NewCourse {
+  name: string;
+  code: string;
+  credits: number | undefined;
+  teacher: string;
+}
  
 

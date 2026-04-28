@@ -12,16 +12,10 @@ import {
 
 import { formStyles } from "../styles/appStyles";
 import { ScreenProps } from "../navigation/typesNavigation";
+import { NewCourse } from "../types/course";
 
 type Props = ScreenProps<"Form">;
 
-//Interface para el manejo del objeto formulario
-export interface Form {
-  name: string;
-  code: string;
-  credits: number | undefined;
-  teacher: string;
-}
 
 export const FormScreen = ({ route, navigation }: Props) => {
   // If id arrives via params -> EDIT MODE. Otherwise -> CREATE MODE.
@@ -29,7 +23,7 @@ export const FormScreen = ({ route, navigation }: Props) => {
   const isEditMode: boolean = id !== undefined;
 
   // Form state with default initial values
-  const [form, setForm] = useState<Form>({
+  const [form, setForm] = useState<NewCourse>({
     name: "",
     code: "",
     credits: undefined,
