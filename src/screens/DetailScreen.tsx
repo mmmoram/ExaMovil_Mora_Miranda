@@ -21,17 +21,17 @@ export default function DetailScreen({ route, navigation }: Props) {
         <Text style={detailStyles.title}></Text>
  
         <View style={detailStyles.field}>
-          <Text style={detailStyles.label}>Code</Text>
+          <Text style={detailStyles.label}>Código</Text>
           <Text style={detailStyles.value}></Text>
         </View>
  
         <View style={detailStyles.field}>
-          <Text style={detailStyles.label}>Credits</Text>
+          <Text style={detailStyles.label}>Creditos</Text>
           <Text style={detailStyles.value}></Text>
         </View>
  
         <View style={detailStyles.field}>
-          <Text style={detailStyles.label}>Teacher</Text>
+          <Text style={detailStyles.label}>Docente</Text>
           <Text style={detailStyles.value}></Text>
         </View>
  

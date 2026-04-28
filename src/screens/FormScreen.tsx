@@ -71,7 +71,7 @@ export const FormScreen = ({ route, navigation }: Props) => {
           autoCapitalize="characters"
         />
 
-        <Text style={formStyles.label}>Creditos *</Text>
+        <Text style={formStyles.label}>Créditos *</Text>
         <TextInput
           style={formStyles.input}
           value={form.credits?.toString()}
