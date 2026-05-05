@@ -13,9 +13,9 @@ import {
 import { formStyles } from "../styles/appStyles";
 import { ScreenProps } from "../navigation/typesNavigation";
 import { NewCourse } from "../types/course";
+import { courseService } from "../services/courseService";
 
 type Props = ScreenProps<"Form">;
-
 
 export const FormScreen = ({ route, navigation }: Props) => {
   // If id arrives via params -> EDIT MODE. Otherwise -> CREATE MODE.
@@ -30,14 +30,78 @@ export const FormScreen = ({ route, navigation }: Props) => {
     teacher: "",
   });
 
+  //hook useEffect: permite ejecutar el código en segundo plano
+  useEffect(() => {
+    //código a ejecutar
+    if (isEditMode && id !== undefined) {
+      loadCourse(id);
+    }
+  }, [id]);
+
+  const [saving, setSaving] = useState<boolean>(false);
+
+  const loadCourse = async (courseId: number): Promise<void> => {
+    try {
+      const course = await courseService.getById(courseId);
+      if (course === null) {
+        Alert.alert("Error", "Curso no encontrado");
+        navigation.goBack();
+        return;
+      }
+
+      setForm({
+        name: course.name,
+        code: course.code,
+        credits: course.credits,
+        teacher: course.teacher,
+      });
+    } catch (error) {
+      Alert.alert("Error", "El curso no se puede cargar");
+      console.error(error);
+    }
+  };
+
   const handleInputChange = (key: string, value: string) => {
     setForm({ ...form, [key]: value });
   };
 
+  const handleSave = async (): Promise<void> => {
+    if (
+      form.name.trim() === "" ||
+      form.code.trim() === "" ||
+      form.teacher.trim() === ""
+    ) {
+      Alert.alert("Campos incompletos", "Por favor, llenar todos los campos");
+      return;
+    }
+
+    if (!form.credits || isNaN(form.credits) || form.credits < 0) {
+      Alert.alert("Créditos inválidos", "Ingrese un valor mayor o igual a 0");
+      return;
+    }
+
+    //Crear curso
+    try {
+      //VALIDACIÓN código vulnerable a doble submit
+      setSaving(true);
+      if (isEditMode && id !== undefined) {
+        await courseService.update(id, form);
+        Alert.alert("Exitoso", "Curso actualizado con éxito");
+      } else {
+        await courseService.create(form);
+        Alert.alert("Exitoso", "Curso creado con éxito");
+      }
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert("Error", "No se logró crear el curso");
+      console.error(error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-    >
+    <KeyboardAvoidingView style={{ flex: 1 }}>
       <ScrollView
         style={formStyles.container}
         contentContainerStyle={formStyles.scrollContent}
@@ -59,7 +123,9 @@ export const FormScreen = ({ route, navigation }: Props) => {
         <TextInput
           style={formStyles.input}
           value={form.code}
-          onChangeText={(value) => handleInputChange("code", value.toUpperCase())}
+          onChangeText={(value) =>
+            handleInputChange("code", value.toUpperCase())
+          }
           placeholder="CS-301"
           maxLength={20}
           autoCapitalize="characters"
@@ -84,12 +150,15 @@ export const FormScreen = ({ route, navigation }: Props) => {
         />
 
         <TouchableOpacity
-          style={formStyles.saveButton}
-          onPress={()=>{}}
-          disabled={true}
+          style={[
+            formStyles.saveButton,
+            saving && formStyles.saveButtonDisabled,
+          ]}
+          onPress={handleSave}
+          disabled={saving}
         >
           <Text style={formStyles.saveButtonText}>
-            
+            {saving ? "Guardando..." : isEditMode ? "Actualizar" : "Crear"}
           </Text>
         </TouchableOpacity>
 
