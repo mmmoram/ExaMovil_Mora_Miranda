@@ -13,7 +13,7 @@ import {
 import { formStyles } from "../styles/appStyles";
 import { ScreenProps } from "../navigation/typesNavigation";
 import { NewCourse } from "../types/gadget";
-import { courseService } from "../services/courseService";
+import { courseService } from "../services/gadgetService";
 
 type Props = ScreenProps<"Form">;
 

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Alert, ScrollView } from "react-native";
 import { detailStyles } from "../styles/appStyles";
 import { ScreenProps } from "../navigation/typesNavigation";
 import { Course } from "../types/gadget";
-import { courseService } from "../services/courseService";
+import { courseService } from "../services/gadgetService";
 import { useFocusEffect } from "@react-navigation/native";
 
 type Props = ScreenProps<"Detail">;

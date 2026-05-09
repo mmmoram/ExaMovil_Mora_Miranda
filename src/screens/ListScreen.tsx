@@ -10,7 +10,7 @@ import { listStyles } from "../styles/appStyles";
 import { ScreenProps } from "../navigation/typesNavigation";
 import { useCallback, useState } from "react";
 import { Course } from "../types/gadget";
-import { courseService } from "../services/courseService";
+import { courseService } from "../services/gadgetService";
 import { useFocusEffect } from "@react-navigation/native";
 
 type Props = ScreenProps<"List">;

@@ -1,19 +1,19 @@
 import { StyleSheet } from "react-native";
 
 export const COLORS = {
-  primary: '#1F4E79',
-  secondary: '#2E75B6',
-  background: '#F5F5F5',
-  white: '#FFFFFF',
-  textDark: '#333333',
-  textMedium: '#666666',
-  textLight: '#999999',
-  border: '#DDDDDD',
-  inputBg: '#FAFAFA',
-  danger: '#C62828',
-  dangerBg: '#FFEBEE',
-  success: '#2E7D32',
-  warning: '#F57C00',
+  primary: '#0EA5E9', 
+  secondary: '#38BDF8',
+  background: '#0F172A', 
+  card: '#1E293B', 
+  white: '#F8FAFC', 
+  textDark: '#F1F5F9',
+  textMedium: '#94A3B8', 
+  textLight: '#64748B',
+  border: '#334155',
+  inputBg: '#0B1120',
+  danger: '#EF4444',
+  dangerBg: 'rgba(239, 68, 68, 0.1)',
+  success: '#10B981', 
   shadow: '#000000',
 };
  

@@ -1,3 +1,4 @@
+// src/navigation/StackNavigator.tsx
 import { createStackNavigator } from "@react-navigation/stack";
 import { COLORS } from "../styles/appStyles";
 import { ListScreen } from "../screens/ListScreen";
@@ -7,35 +8,32 @@ import { FormScreen } from "../screens/FormScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
  
-/**
- * Stack Navigator containing all the app screens.
- * Defines the navigation flow: List -> Detail -> Form
- */
-export const StackNavigator=()=> {
+export const StackNavigator = () => {
   return (
     <Stack.Navigator
       initialRouteName="List"
       screenOptions={{
-        headerStyle: { backgroundColor: COLORS.primary },
+        headerStyle: { backgroundColor: COLORS.background },
         headerTintColor: COLORS.white,
         headerTitleStyle: { fontWeight: 'bold' },
+        headerShadowVisible: false,
       }}
     >
       <Stack.Screen
         name="List"
         component={ListScreen}
-        options={{ title: 'Mis Cursos' }}
+        options={{ title: 'My Gadgets' }}
       />
       <Stack.Screen
         name="Detail"
         component={DetailScreen}
-        options={{ title: 'Detalle del Curso' }}
+        options={{ title: 'Gadget Details' }}
       />
       <Stack.Screen
         name="Form"
         component={FormScreen}
         options={({ route }) => ({
-          title: route.params?.id ? 'Editar Curso' : 'Nuevo Curso',
+          title: route.params?.id ? 'Edit Gadget' : 'New Gadget',
         })}
       />
     </Stack.Navigator>
