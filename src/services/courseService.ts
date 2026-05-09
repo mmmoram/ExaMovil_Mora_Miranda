@@ -1,5 +1,5 @@
 import { getDatabase } from "../database/database";
-import { Course, NewCourse } from "../types/course";
+import { Course, NewCourse } from "../types/gadget";
 
 export const courseService = {
   //CREATE
