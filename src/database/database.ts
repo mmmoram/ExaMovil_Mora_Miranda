@@ -4,7 +4,7 @@ let dbInstance: SQLite.SQLiteDatabase | null = null;
 
 export const getDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
   if (dbInstance === null) {
-    dbInstance = await SQLite.openDatabaseAsync("gadgetinventory.db");
+    dbInstance = await SQLite.openDatabaseAsync("gadgetinventory_v2.db"); 
     await createTables(dbInstance);
   }
   return dbInstance;

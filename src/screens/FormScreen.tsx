@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -65,26 +64,53 @@ export const FormScreen = ({ route, navigation }: Props) => {
   const handleInputChange = (field: keyof NewGadget, value: string) => {
     setForm((prev) => ({
       ...prev,
-      [field]: field === "price" || field === "purchaseYear" 
-        ? (value === "" ? undefined : Number(value)) 
-        : value,
+      [field]: value,
     }));
   };
 
   const handleSave = async (): Promise<void> => {
-    // Validaciones básicas
-    if (!form.name || !form.brand || !form.category || !form.price || !form.purchaseYear) {
-      Alert.alert("Campos obligatorios", "Por favor completa todos los campos.");
+    // 1. Limpiamos los textos
+    const name = form.name?.trim();
+    const brand = form.brand?.trim();
+    const category = form.category?.trim();
+    
+    // 2. Convertimos a números explícitamente [cite: 31]
+    const price = Number(form.price);
+    const purchaseYear = Number(form.purchaseYear);
+
+    // 3. Validaciones de la rúbrica [cite: 27-32]
+    if (!name || !brand || !category) {
+      Alert.alert("Campos obligatorios", "Por favor completa todos los campos de texto.");
+      return;
+    }
+
+    if (isNaN(price) || price <= 0) {
+      Alert.alert("Precio inválido", "El precio debe ser un número mayor a 0.");
+      return;
+    }
+
+    if (isNaN(purchaseYear) || purchaseYear < 2000 || purchaseYear > 2026) {
+      Alert.alert("Año inválido", "El año debe estar entre 2000 y 2026.");
       return;
     }
 
     try {
       setSaving(true);
+      
+      // Creamos el objeto validado
+      const gadgetToSave = {
+        name,
+        brand,
+        category,
+        price,
+        purchaseYear
+      };
+
       if (isEditMode && id !== undefined) {
-        await gadgetService.update(id, form);
+        await gadgetService.update(id, gadgetToSave);
         Alert.alert("Éxito", "Gadget actualizado correctamente");
       } else {
-        await gadgetService.create(form);
+        await gadgetService.create(gadgetToSave);
         Alert.alert("Éxito", "Gadget guardado en el inventario");
       }
       navigation.goBack();
