@@ -247,6 +247,7 @@ export const formStyles = StyleSheet.create({
     padding: 12,
     fontSize: SIZES.fontMedium,
     backgroundColor: COLORS.inputBg,
+    color: '#FFFFFF',
 
   },
   saveButton: {
