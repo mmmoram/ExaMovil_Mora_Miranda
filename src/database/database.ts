@@ -4,7 +4,7 @@ let dbInstance: SQLite.SQLiteDatabase | null = null;
 
 export const getDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
   if (dbInstance === null) {
-    dbInstance = await SQLite.openDatabaseAsync("mycourses.db");
+    dbInstance = await SQLite.openDatabaseAsync("gadgetinventory.db");
     await createTables(dbInstance);
   }
   return dbInstance;
@@ -12,11 +12,12 @@ export const getDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
 
 const createTables = async (db: SQLite.SQLiteDatabase): Promise<void> => {
   await db.execAsync(`
-        CREATE TABLE IF NOT EXISTS courses(
+        CREATE TABLE IF NOT EXISTS gadgets(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        code TEXT NOT NULL,
-        credits INTEGER NOT NULL,
-        teacher TEXT NOT NULL
+        brand TEXT NOT NULL,
+        category TEXT NOT NULL,
+        price REAL NOT NULL,
+        purchaseYear INTEGER NOT NULL
         )`);
 };
