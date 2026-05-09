@@ -1,4 +1,4 @@
-// src/services/gadgetService.ts
+
 import { getDatabase } from "../database/database";
 import { Gadget, NewGadget } from "../types/gadget";
 

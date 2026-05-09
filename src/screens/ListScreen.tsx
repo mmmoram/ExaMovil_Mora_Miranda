@@ -31,7 +31,7 @@ export const ListScreen = ({ navigation }: Props) => {
     }
   };
 
-  // BONUS: Filtrado por nombre o marca
+  // BONUS
   const filteredGadgets = gadgets.filter((g) => 
     g.name.toLowerCase().includes(searchText.toLowerCase()) ||
     g.brand.toLowerCase().includes(searchText.toLowerCase())

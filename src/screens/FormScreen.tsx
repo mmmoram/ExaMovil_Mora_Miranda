@@ -69,16 +69,16 @@ export const FormScreen = ({ route, navigation }: Props) => {
   };
 
   const handleSave = async (): Promise<void> => {
-    // 1. Limpiamos los textos
+   
     const name = form.name?.trim();
     const brand = form.brand?.trim();
     const category = form.category?.trim();
     
-    // 2. Convertimos a números explícitamente [cite: 31]
+   
     const price = Number(form.price);
     const purchaseYear = Number(form.purchaseYear);
 
-    // 3. Validaciones de la rúbrica [cite: 27-32]
+  
     if (!name || !brand || !category) {
       Alert.alert("Campos obligatorios", "Por favor completa todos los campos de texto.");
       return;
@@ -96,8 +96,7 @@ export const FormScreen = ({ route, navigation }: Props) => {
 
     try {
       setSaving(true);
-      
-      // Creamos el objeto validado
+     
       const gadgetToSave = {
         name,
         brand,

@@ -1,4 +1,4 @@
-// src/navigation/StackNavigator.tsx
+
 import { createStackNavigator } from "@react-navigation/stack";
 import { COLORS } from "../styles/appStyles";
 import { ListScreen } from "../screens/ListScreen";
