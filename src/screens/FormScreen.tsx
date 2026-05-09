@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -8,165 +9,182 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 
 import { formStyles } from "../styles/appStyles";
 import { ScreenProps } from "../navigation/typesNavigation";
-import { NewCourse } from "../types/gadget";
-import { courseService } from "../services/gadgetService";
+import { NewGadget } from "../types/gadget";
+import { gadgetService } from "../services/gadgetService";
+
 
 type Props = ScreenProps<"Form">;
 
 export const FormScreen = ({ route, navigation }: Props) => {
-  // If id arrives via params -> EDIT MODE. Otherwise -> CREATE MODE.
   const id = route.params?.id;
   const isEditMode: boolean = id !== undefined;
 
-  // Form state with default initial values
-  const [form, setForm] = useState<NewCourse>({
+  const [form, setForm] = useState<NewGadget>({
     name: "",
-    code: "",
-    credits: undefined,
-    teacher: "",
+    brand: "",
+    category: "",
+    price: undefined,
+    purchaseYear: undefined,
   });
 
-  //hook useEffect: permite ejecutar el código en segundo plano
+  const [saving, setSaving] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
   useEffect(() => {
-    //código a ejecutar
     if (isEditMode && id !== undefined) {
-      loadCourse(id);
+      loadGadget(id);
     }
   }, [id]);
 
-  const [saving, setSaving] = useState<boolean>(false);
-
-  const loadCourse = async (courseId: number): Promise<void> => {
+  const loadGadget = async (gadgetId: number): Promise<void> => {
     try {
-      const course = await courseService.getById(courseId);
-      if (course === null) {
-        Alert.alert("Error", "Curso no encontrado");
-        navigation.goBack();
-        return;
+      setLoading(true);
+      const gadget = await gadgetService.getById(gadgetId);
+      if (gadget) {
+        setForm({
+          name: gadget.name,
+          brand: gadget.brand,
+          category: gadget.category,
+          price: gadget.price,
+          purchaseYear: gadget.purchaseYear,
+        });
       }
-
-      setForm({
-        name: course.name,
-        code: course.code,
-        credits: course.credits,
-        teacher: course.teacher,
-      });
     } catch (error) {
-      Alert.alert("Error", "El curso no se puede cargar");
-      console.error(error);
+      Alert.alert("Error", "No se pudo cargar el gadget");
+      navigation.goBack();
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleInputChange = (key: string, value: string) => {
-    setForm({ ...form, [key]: value });
+  const handleInputChange = (field: keyof NewGadget, value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: field === "price" || field === "purchaseYear" 
+        ? (value === "" ? undefined : Number(value)) 
+        : value,
+    }));
   };
 
   const handleSave = async (): Promise<void> => {
-    if (
-      form.name.trim() === "" ||
-      form.code.trim() === "" ||
-      form.teacher.trim() === ""
-    ) {
-      Alert.alert("Campos incompletos", "Por favor, llenar todos los campos");
+    // Validaciones básicas
+    if (!form.name || !form.brand || !form.category || !form.price || !form.purchaseYear) {
+      Alert.alert("Campos obligatorios", "Por favor completa todos los campos.");
       return;
     }
 
-    if (!form.credits || isNaN(form.credits) || form.credits < 0) {
-      Alert.alert("Créditos inválidos", "Ingrese un valor mayor o igual a 0");
-      return;
-    }
-
-    //Crear curso
     try {
-      //VALIDACIÓN código vulnerable a doble submit
       setSaving(true);
       if (isEditMode && id !== undefined) {
-        await courseService.update(id, form);
-        Alert.alert("Exitoso", "Curso actualizado con éxito");
+        await gadgetService.update(id, form);
+        Alert.alert("Éxito", "Gadget actualizado correctamente");
       } else {
-        await courseService.create(form);
-        Alert.alert("Exitoso", "Curso creado con éxito");
+        await gadgetService.create(form);
+        Alert.alert("Éxito", "Gadget guardado en el inventario");
       }
       navigation.goBack();
     } catch (error) {
-      Alert.alert("Error", "No se logró crear el curso");
-      console.error(error);
+      Alert.alert("Error", "Hubo un problema al guardar los datos");
     } finally {
       setSaving(false);
     }
   };
 
+  if (loading) {
+    return (
+      <View style={[formStyles.container, { justifyContent: 'center' }]}>
+        <ActivityIndicator size="large" color="#0EA5E9" />
+      </View>
+    );
+  }
+
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }}>
-      <ScrollView
-        style={formStyles.container}
-        contentContainerStyle={formStyles.scrollContent}
-      >
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView style={formStyles.container} contentContainerStyle={formStyles.scrollContent}>
         <Text style={formStyles.title}>
-          {isEditMode ? "Editar Curso" : "Nuevo Curso"}
+          {isEditMode ? "Editar Gadget" : "Nuevo Gadget"}
         </Text>
 
-        <Text style={formStyles.label}>Nombre *</Text>
+        <Text style={formStyles.label}>Nombre del Producto *</Text>
         <TextInput
           style={formStyles.input}
           value={form.name}
-          onChangeText={(value) => handleInputChange("name", value)}
-          placeholder="Bases de Datos"
-          maxLength={60}
+          onChangeText={(v) => handleInputChange("name", v)}
+          placeholder="Ej: iPhone 15 Pro"
+          placeholderTextColor="#64748B"
         />
 
-        <Text style={formStyles.label}>Código *</Text>
+        <Text style={formStyles.label}>Marca *</Text>
         <TextInput
           style={formStyles.input}
-          value={form.code}
-          onChangeText={(value) =>
-            handleInputChange("code", value.toUpperCase())
-          }
-          placeholder="CS-301"
-          maxLength={20}
-          autoCapitalize="characters"
+          value={form.brand}
+          onChangeText={(v) => handleInputChange("brand", v)}
+          placeholder="Ej: Apple"
+          placeholderTextColor="#64748B"
         />
 
-        <Text style={formStyles.label}>Créditos *</Text>
+        <Text style={formStyles.label}>Categoría (Laptop, Phone, etc) *</Text>
         <TextInput
           style={formStyles.input}
-          value={form.credits?.toString()}
-          onChangeText={(value) => handleInputChange("credits", value)}
-          keyboardType="numeric"
-          placeholder="4"
+          value={form.category}
+          onChangeText={(v) => handleInputChange("category", v)}
+          placeholder="Ej: Smartphone"
+          placeholderTextColor="#64748B"
         />
 
-        <Text style={formStyles.label}>Docente *</Text>
-        <TextInput
-          style={formStyles.input}
-          value={form.teacher}
-          onChangeText={(value) => handleInputChange("teacher", value)}
-          placeholder="Pablo Castro"
-          maxLength={60}
-        />
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <View style={{ width: '48%' }}>
+            <Text style={formStyles.label}>Precio ($) *</Text>
+            <TextInput
+              style={formStyles.input}
+              value={form.price?.toString()}
+              onChangeText={(v) => handleInputChange("price", v)}
+              keyboardType="numeric"
+              placeholder="999.99"
+              placeholderTextColor="#64748B"
+            />
+          </View>
+          <View style={{ width: '48%' }}>
+            <Text style={formStyles.label}>Año de Compra *</Text>
+            <TextInput
+              style={formStyles.input}
+              value={form.purchaseYear?.toString()}
+              onChangeText={(v) => handleInputChange("purchaseYear", v)}
+              keyboardType="numeric"
+              placeholder="2024"
+              placeholderTextColor="#64748B"
+              maxLength={4}
+            />
+          </View>
+        </View>
 
         <TouchableOpacity
-          style={[
-            formStyles.saveButton,
-            saving && formStyles.saveButtonDisabled,
-          ]}
+          style={[formStyles.saveButton, saving && { opacity: 0.7 }]}
           onPress={handleSave}
           disabled={saving}
         >
-          <Text style={formStyles.saveButtonText}>
-            {saving ? "Guardando..." : isEditMode ? "Actualizar" : "Crear"}
-          </Text>
+          {saving ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={formStyles.saveButtonText}>
+              {isEditMode ? "Actualizar Inventario" : "Guardar Producto"}
+            </Text>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity
           style={formStyles.cancelButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={formStyles.cancelButtonText}>Cancel</Text>
+          <Text style={formStyles.cancelButtonText}>Cancelar</Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>

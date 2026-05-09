@@ -2,104 +2,88 @@ import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, Alert, ScrollView } from "react-native";
 import { detailStyles } from "../styles/appStyles";
 import { ScreenProps } from "../navigation/typesNavigation";
-import { Course } from "../types/gadget";
-import { courseService } from "../services/gadgetService";
+import { Gadget } from "../types/gadget";
+import { gadgetService } from "../services/gadgetService";
 import { useFocusEffect } from "@react-navigation/native";
 
 type Props = ScreenProps<"Detail">;
 
 export default function DetailScreen({ route, navigation }: Props) {
   const { id } = route.params;
-
-  const [course, setCourse] = useState<Course | null>(null);
+  const [gadget, setGadget] = useState<Gadget | null>(null);
 
   useFocusEffect(
     useCallback(() => {
-      loadCourse();
-    }, []),
+      loadGadget();
+    }, [id])
   );
 
-  const loadCourse = async (): Promise<void> => {
+  const loadGadget = async () => {
     try {
-      const data = await courseService.getById(id);
-      setCourse(data);
-      if (data === null) {
-        Alert.alert("Error", "Curso no encontrado");
+      const data = await gadgetService.getById(id);
+      if (data) {
+        setGadget(data);
+      } else {
+        Alert.alert("Error", "Gadget no encontrado");
         navigation.goBack();
-        return;
       }
     } catch (error) {
-      Alert.alert("Error", "No se puede cargar el curso");
       console.error(error);
     }
   };
 
-  const confirmDelete = (): void => {
-    if (course === null) return;
-
+  const confirmDelete = () => {
     Alert.alert(
-      "Eliminar curso",
-      `Estás seguro que quieres eliminar el curso "${course.name}"? Está acción no se puede deshacer.`,
+      "Eliminar Gadget",
+      `¿Estás seguro de eliminar "${gadget?.name}"? Esta acción no se puede deshacer.`,
       [
-        {text: "Cancelar", style: "cancel"},
-        {text: "Eliminar", style:"destructive", onPress: handleDelete}
+        { text: "Cancelar", style: "cancel" },
+        { text: "Eliminar", style: "destructive", onPress: handleDelete }
       ]
-    )
+    );
   };
 
-  const handleDelete = async (): Promise<void> => {
-    if (course === null) return;
+  const handleDelete = async () => {
     try {
-      await courseService.delete(course.id);
-      Alert.alert("Exitoso", "Curso eliminado con éxito");
+      await gadgetService.delete(id);
+      Alert.alert("Éxito", "Gadget eliminado correctamente");
       navigation.goBack();
     } catch (error) {
-      Alert.alert("Error", "El curso no se puede eliminar");
-      console.error(error);
+      Alert.alert("Error", "No se pudo eliminar el gadget");
     }
   };
 
-  if (course === null) {
-    return (
-      <View style={detailStyles.container}>
-        <Text style={detailStyles.loadingText}>Cargando....</Text>
-      </View>
-    );
-  }
+  if (!gadget) return <View style={detailStyles.container}><Text style={{color: 'white'}}>Cargando...</Text></View>;
 
   return (
     <ScrollView style={detailStyles.container}>
       <View style={detailStyles.card}>
-        <Text style={detailStyles.title}>{course.name}</Text>
+        <Text style={detailStyles.title}>{gadget.name}</Text>
+        
+        <Text style={detailStyles.label}>MARCA</Text>
+        <Text style={detailStyles.value}>{gadget.brand}</Text>
 
-        <View style={detailStyles.field}>
-          <Text style={detailStyles.label}>Código</Text>
-          <Text style={detailStyles.value}>{course.code}</Text>
-        </View>
+        <Text style={detailStyles.label}>CATEGORÍA</Text>
+        <Text style={detailStyles.value}>{gadget.category}</Text>
 
-        <View style={detailStyles.field}>
-          <Text style={detailStyles.label}>Creditos</Text>
-          <Text style={detailStyles.value}>{course.credits}</Text>
-        </View>
+        <Text style={detailStyles.label}>AÑO DE COMPRA</Text>
+        <Text style={detailStyles.value}>{gadget.purchaseYear}</Text>
 
-        <View style={detailStyles.field}>
-          <Text style={detailStyles.label}>Docente</Text>
-          <Text style={detailStyles.value}>{course.teacher}</Text>
-        </View>
+        <Text style={detailStyles.label}>PRECIO</Text>
+        <Text style={[detailStyles.value, {color: '#10B981', fontWeight: 'bold', fontSize: 24}]}>
+          ${gadget.price.toFixed(2)}
+        </Text>
 
         <View style={detailStyles.buttonContainer}>
-          <TouchableOpacity
-            style={detailStyles.editButton}
-            onPress={() => navigation.navigate("Form", { id: course.id })}
+          <TouchableOpacity 
+            style={detailStyles.editButton} 
+            onPress={() => navigation.navigate("Form", { id: gadget.id })}
           >
-            <Text style={detailStyles.editButtonText}>✏️ Editar</Text>
+            <Text style={{color: 'white', fontWeight: 'bold'}}>EDITAR</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={detailStyles.deleteButton}
-            onPress={confirmDelete}
-          >
-            <Text style={detailStyles.deleteButtonText}>🗑️ Eliminar</Text>
+          <TouchableOpacity style={detailStyles.deleteButton} onPress={confirmDelete}>
+            <Text style={{color: '#EF4444', fontWeight: 'bold'}}>ELIMINAR</Text>
           </TouchableOpacity>
         </View>
       </View>

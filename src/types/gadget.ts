@@ -1,4 +1,4 @@
-export interface Course {
+export interface Gadget {
   id: number;
   name: string;
   brand: string;
@@ -14,5 +14,3 @@ export interface NewGadget {
   price: number | undefined;
   purchaseYear: number | undefined;
 }
- 
-

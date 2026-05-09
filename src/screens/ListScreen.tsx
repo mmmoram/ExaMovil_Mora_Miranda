@@ -1,100 +1,84 @@
-import {
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
-import { listStyles } from "../styles/appStyles";
+import { View, Text, TextInput, FlatList, TouchableOpacity, Alert } from "react-native";
+import { listStyles } from "../styles/appStyles";  
 import { ScreenProps } from "../navigation/typesNavigation";
 import { useCallback, useState } from "react";
-import { Course } from "../types/gadget";
-import { courseService } from "../services/gadgetService";
+import { Gadget } from "../types/gadget";
+import { gadgetService } from "../services/gadgetService";
 import { useFocusEffect } from "@react-navigation/native";
 
 type Props = ScreenProps<"List">;
 
 export const ListScreen = ({ navigation }: Props) => {
-  const [courses, setCourses] = useState<Course[]>([]);
-
-  //Verificar la carga, para evitar que la pantalla se muestre vacía
+  const [gadgets, setGadgets] = useState<Gadget[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
-  //Buscar por nombre
   const [searchText, setSearchText] = useState<string>("");
 
-  //useFocusEffect: permite ejecutar loadcCourses cada vez que la pantalla vuelve
-  //a estar isible.
-  //Así grarantizamos que siempre veamos los datos actualizados.
   useFocusEffect(
     useCallback(() => {
-      loadCourses();
-    }, []),
+      loadGadgets();
+    }, [])
   );
 
-  const loadCourses = async (): Promise<void> => {
+  const loadGadgets = async (): Promise<void> => {
     try {
       setLoading(true);
-      const data = await courseService.getAll();
-      setCourses(data);
+      const data = await gadgetService.getAll();
+      setGadgets(data);
     } catch (error) {
-      Alert.alert("Error", "No se puede cargar los cursos");
-      console.error(error);
+      Alert.alert("Error", "No se pudo cargar el inventario");
     } finally {
       setLoading(false);
     }
   };
 
-  //Arreglo con datos filrados
-  const filteredCourses = courses.filter((course) => 
-    course.name.toLowerCase().includes(searchText.toLowerCase())
+  // BONUS: Filtrado por nombre o marca
+  const filteredGadgets = gadgets.filter((g) => 
+    g.name.toLowerCase().includes(searchText.toLowerCase()) ||
+    g.brand.toLowerCase().includes(searchText.toLowerCase())
   );
 
   return (
     <View style={listStyles.container}>
-      {/* Search bar */}
       <View style={listStyles.searchContainer}>
         <TextInput
           style={listStyles.searchInput}
-          placeholder="🔍 Buscar por nombre..."
+          placeholder="🔍 Buscar por nombre o marca..."
+          placeholderTextColor="#64748B"
           value={searchText}
           onChangeText={setSearchText}
         />
       </View>
 
       <FlatList
-        data={filteredCourses}
+        data={filteredGadgets}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={listStyles.list}
-        ListEmptyComponent={<Text style={listStyles.emptyText}>
+        ListEmptyComponent={
           <Text style={listStyles.emptyText}>
-            {loading
-            ? "Cargando..."
-            : searchText
-            ? "Curso no encontrado"
-            : "Todavía no hay cursos. Crea el primer curso!"
-            }
+            {loading ? "Cargando..." : searchText ? "No se encontraron gadgets." : "Inventario vacío. ¡Agrega uno!"}
           </Text>
-        </Text>}
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             style={listStyles.card}
             onPress={() => navigation.navigate("Detail", { id: item.id })}
           >
-            <Text style={listStyles.cardName}>{item.name}</Text>
-            <Text style={listStyles.cardDetail}>
-              {item.code} - {item.credits} creditós
-            </Text>
-            <Text style={listStyles.cardTeacher}>{item.teacher}</Text>
+            <View style={listStyles.cardContent}>
+              <Text style={listStyles.cardName}>{item.name}</Text>
+              <Text style={listStyles.cardBrand}>{item.brand}</Text>
+              <View style={listStyles.pill}>
+                <Text style={listStyles.pillText}>{item.category.toUpperCase()}</Text>
+              </View>
+            </View>
+            <View style={listStyles.priceContainer}>
+              <Text style={listStyles.cardPrice}>${item.price.toFixed(2)}</Text>
+              <Text style={listStyles.cardYear}>{item.purchaseYear}</Text>
+            </View>
           </TouchableOpacity>
         )}
       />
 
-      <TouchableOpacity
-        style={listStyles.fab}
-        onPress={() => navigation.navigate("Form", {})}
-      >
+      <TouchableOpacity style={listStyles.fab} onPress={() => navigation.navigate("Form", {})}>
         <Text style={listStyles.fabText}>+</Text>
       </TouchableOpacity>
     </View>
