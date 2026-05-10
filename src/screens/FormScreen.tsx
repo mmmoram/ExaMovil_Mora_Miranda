@@ -133,7 +133,11 @@ export const FormScreen = ({ route, navigation }: Props) => {
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView style={formStyles.container} contentContainerStyle={formStyles.scrollContent}>
+      <ScrollView 
+        style={formStyles.container} 
+        contentContainerStyle={formStyles.scrollContent}
+        keyboardShouldPersistTaps="handled" 
+      >
         <Text style={formStyles.title}>
           {isEditMode ? "Editar Gadget" : "Nuevo Gadget"}
         </Text>
